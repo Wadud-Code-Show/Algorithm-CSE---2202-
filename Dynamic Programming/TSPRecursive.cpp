@@ -1,52 +1,36 @@
-// C++ program to find the shortest possible route
-// that visits every city exactly once and returns to
-// the starting point using memoization and bitmasking
-
-//#include <bits/stdc++.h>
-#include <vector>
-//#include <climits>
+#include<iostream>
 using namespace std;
-
- 
-int totalCost(int mask, int pos, int n, vector<vector<int> > &cost) {
-  
-    // Base case: if all cities are visited, return the 
-   // cost to return to the starting city (0)
-    if (mask == (1 << n) - 1) {
-        return cost[pos][0];
-    }
-
-    int ans = INT_MAX;
-
-    // Try visiting every city that has not been visited yet
-    for (int i = 0; i < n; i++) {
-        if ((mask & (1 << i)) == 0) {
-          
-            // If city i is not visited, visit it and update the mask
-            ans = min(ans, cost[pos][i] + 
-                      totalCost((mask | (1 << i)), i, n, cost));
-        }
-    }
-
-    return ans;
+#define MAX 9999
+int n=4;
+int distan[20][20] = {{0, 22, 26, 30},
+   {30, 0, 45, 35},
+   {25, 45, 0, 60},
+   {30, 35, 40, 0}
+};
+int completed_visit = (1<<n) -1;
+int DP[32][8];
+int TSP(int mark, int position){
+   if(mark==completed_visit) {
+      return distan[position][0];
+   }
+   if(DP[mark][position]!=-1) {
+      return DP[mark][position];
+   }
+   int answer = MAX;
+   for(int city=0; city<n; city++) {
+      if((mark&(1<<city))==0) {
+         int newAnswer = distan[position][city] + TSP( mark|(1<<city),city);
+         answer = min(answer, newAnswer);
+      }
+   }
+   return DP[mark][position] = answer;
 }
- 
-int tsp(vector<vector<int> > &cost) {
-    int n = cost.size();
-  
-  // Start from city 0, and only city 0 is visited initially (mask = 1)
-    return totalCost(1, 0, n, cost);  
-}
-
-int main() {
-   
-    vector<vector<int> > cost = {{0, 10, 15, 20}, 
-                                {10, 0, 35, 25}, 
-                                {15, 35, 0, 30}, 
-                                {20, 25, 30, 0}};
- 
-    int res = tsp(cost);
-    cout<<res<<endl;
-
-    return 0;
+int main(){
+   for(int i=0; i<(1<<n); i++) {
+      for(int j=0; j<n; j++) {
+         DP[i][j] = -1;
+      }
+   }
+   cout << "Minimum Distance Travelled -> " << TSP(1,0);
+   return 0;
 }
